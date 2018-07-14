@@ -8,7 +8,7 @@ import StarButton from './StarButton'
 import TagSelect from './TagSelect'
 import FolderSelect from './FolderSelect'
 import dataApi from 'browser/main/lib/dataApi'
-import {hashHistory} from 'react-router'
+import { hashHistory } from 'react-router'
 import ee from 'browser/main/lib/eventEmitter'
 import CodeMirror from 'codemirror'
 import 'codemirror-mode-elixir'
@@ -17,7 +17,7 @@ import StatusBar from '../StatusBar'
 import context from 'browser/lib/context'
 import ConfigManager from 'browser/main/lib/ConfigManager'
 import _ from 'lodash'
-import {findNoteTitle} from 'browser/lib/findNoteTitle'
+import { findNoteTitle } from 'browser/lib/findNoteTitle'
 import convertModeName from 'browser/lib/convertModeName'
 import AwsMobileAnalyticsConfig from 'browser/main/lib/AwsMobileAnalyticsConfig'
 import TrashButton from './TrashButton'
@@ -35,7 +35,7 @@ const { remote } = electron
 const { dialog } = remote
 
 class SnippetNoteDetail extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     this.state = {
@@ -47,14 +47,14 @@ class SnippetNoteDetail extends React.Component {
       note: Object.assign({
         description: ''
       }, props.note, {
-        snippets: props.note.snippets.map((snippet) => Object.assign({}, snippet))
-      })
+          snippets: props.note.snippets.map((snippet) => Object.assign({}, snippet))
+        })
     }
 
     this.scrollToNextTabThreshold = 0.7
   }
 
-  componentDidMount () {
+  componentDidMount() {
     const visibleTabs = this.visibleTabs
     const allTabs = this.allTabs
 
@@ -67,14 +67,14 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.note.key !== this.props.note.key && !this.state.isMovingNote) {
       if (this.saveQueue != null) this.saveNow()
       const nextNote = Object.assign({
         description: ''
       }, nextProps.note, {
-        snippets: nextProps.note.snippets.map((snippet) => Object.assign({}, snippet))
-      })
+          snippets: nextProps.note.snippets.map((snippet) => Object.assign({}, snippet))
+        })
       this.setState({
         snippetIndex: 0,
         note: nextNote
@@ -89,11 +89,11 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     if (this.saveQueue != null) this.saveNow()
   }
 
-  handleChange (e) {
+  handleChange(e) {
     const { note } = this.state
 
     if (this.refs.tags) note.tags = this.refs.tags.value
@@ -108,14 +108,14 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  save () {
+  save() {
     clearTimeout(this.saveQueue)
     this.saveQueue = setTimeout(() => {
       this.saveNow()
     }, 1000)
   }
 
-  saveNow () {
+  saveNow() {
     const { note, dispatch } = this.props
     clearTimeout(this.saveQueue)
     this.saveQueue = null
@@ -131,7 +131,7 @@ class SnippetNoteDetail extends React.Component {
       })
   }
 
-  handleFolderChange (e) {
+  handleFolderChange(e) {
     const { note } = this.state
     const value = this.refs.folder.value
     const splitted = value.split('-')
@@ -164,7 +164,7 @@ class SnippetNoteDetail extends React.Component {
       })
   }
 
-  handleStarButtonClick (e) {
+  handleStarButtonClick(e) {
     const { note } = this.state
     if (!note.isStarred) AwsMobileAnalyticsConfig.recordDynamicCustomEvent('ADD_STAR')
 
@@ -177,18 +177,18 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  exportAsFile () {
+  exportAsFile() {
 
   }
 
-  handleTrashButtonClick (e) {
+  handleTrashButtonClick(e) {
     const { note } = this.state
     const { isTrashed } = note
     const { confirmDeletion } = this.props.config.ui
 
     if (isTrashed) {
       if (confirmDeleteNote(confirmDeletion, true)) {
-        const {note, dispatch} = this.props
+        const { note, dispatch } = this.props
         dataApi
           .deleteNote(note.storage, note.key)
           .then((data) => {
@@ -218,7 +218,7 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleUndoButtonClick (e) {
+  handleUndoButtonClick(e) {
     const { note } = this.state
 
     note.isTrashed = false
@@ -231,11 +231,11 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  handleFullScreenButton (e) {
+  handleFullScreenButton(e) {
     ee.emit('editor:fullscreen')
   }
 
-  handleTabMoveLeftButtonClick (e) {
+  handleTabMoveLeftButtonClick(e) {
     {
       const left = this.visibleTabs.scrollLeft
 
@@ -248,8 +248,8 @@ class SnippetNoteDetail extends React.Component {
         const visiblePart = lastVisibleTab.offsetWidth + lastVisibleTab.offsetLeft - left
         const isFullyVisible = visiblePart > lastVisibleTab.offsetWidth * this.scrollToNextTabThreshold
         const scrollToTab = (isFullyVisible && lastVisibleTab.previousSibling)
-            ? lastVisibleTab.previousSibling
-            : lastVisibleTab
+          ? lastVisibleTab.previousSibling
+          : lastVisibleTab
 
         // FIXME use `scrollIntoView()` instead of custom method after update to Electron2.0 (with Chrome 61 its possible animate the scroll)
         this.moveToTab(scrollToTab)
@@ -258,7 +258,7 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleTabMoveRightButtonClick (e) {
+  handleTabMoveRightButtonClick(e) {
     const left = this.visibleTabs.scrollLeft
     const width = this.visibleTabs.offsetWidth
 
@@ -271,8 +271,8 @@ class SnippetNoteDetail extends React.Component {
       const visiblePart = width + left - lastVisibleTab.offsetLeft
       const isFullyVisible = visiblePart > lastVisibleTab.offsetWidth * this.scrollToNextTabThreshold
       const scrollToTab = (isFullyVisible && lastVisibleTab.nextSibling)
-          ? lastVisibleTab.nextSibling
-          : lastVisibleTab
+        ? lastVisibleTab.nextSibling
+        : lastVisibleTab
 
       // FIXME use `scrollIntoView()` instead of custom method after update to Electron2.0 (with Chrome 61 its possible animate the scroll)
       this.moveToTab(scrollToTab)
@@ -280,21 +280,21 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleTabPlusButtonClick (e) {
+  handleTabPlusButtonClick(e) {
     this.addSnippet()
   }
 
-  handleTabButtonClick (e, index) {
+  handleTabButtonClick(e, index) {
     this.setState({
       snippetIndex: index
     })
   }
 
-  handleTabDragStart (e, index) {
+  handleTabDragStart(e, index) {
     e.dataTransfer.setData('text/plain', index)
   }
 
-  handleTabDrop (e, index) {
+  handleTabDrop(e, index) {
     const oldIndex = parseInt(e.dataTransfer.getData('text'))
 
     const snippets = this.state.note.snippets.slice()
@@ -303,7 +303,7 @@ class SnippetNoteDetail extends React.Component {
     snippets[index] = draggedSnippet
     const snippetIndex = index
 
-    const note = Object.assign({}, this.state.note, {snippets})
+    const note = Object.assign({}, this.state.note, { snippets })
     this.setState({ note, snippetIndex }, () => {
       this.save()
       this.refs['code-' + index].reload()
@@ -311,7 +311,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  handleTabDeleteButtonClick (e, index) {
+  handleTabDeleteButtonClick(e, index) {
     if (this.state.note.snippets.length > 1) {
       if (this.state.note.snippets[index].content.trim().length > 0) {
         const dialogIndex = dialog.showMessageBox(remote.getCurrentWindow(), {
@@ -329,10 +329,10 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  deleteSnippetByIndex (index) {
+  deleteSnippetByIndex(index) {
     const snippets = this.state.note.snippets.slice()
     snippets.splice(index, 1)
-    const note = Object.assign({}, this.state.note, {snippets})
+    const note = Object.assign({}, this.state.note, { snippets })
     const snippetIndex = this.state.snippetIndex >= snippets.length
       ? snippets.length - 1
       : this.state.snippetIndex
@@ -357,7 +357,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  renameSnippetByIndex (index, name) {
+  renameSnippetByIndex(index, name) {
     const snippets = this.state.note.snippets.slice()
     snippets[index].name = name
     const syntax = CodeMirror.findModeByFileName(name.trim())
@@ -368,7 +368,7 @@ class SnippetNoteDetail extends React.Component {
         name: mode
       })
     }
-    this.setState(state => ({note: Object.assign(state.note, {snippets: snippets})}))
+    this.setState(state => ({ note: Object.assign(state.note, { snippets: snippets }) }))
 
     this.setState(state => ({
       note: state.note
@@ -377,11 +377,11 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  handleModeOptionClick (index, name) {
+  handleModeOptionClick(index, name) {
     return (e) => {
       const snippets = this.state.note.snippets.slice()
       snippets[index].mode = name
-      this.setState(state => ({note: Object.assign(state.note, {snippets: snippets})}))
+      this.setState(state => ({ note: Object.assign(state.note, { snippets: snippets }) }))
 
       this.setState(state => ({
         note: state.note
@@ -395,11 +395,11 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleCodeChange (index) {
+  handleCodeChange(index) {
     return (e) => {
       const snippets = this.state.note.snippets.slice()
       snippets[index].content = this.refs['code-' + index].value
-      this.setState(state => ({note: Object.assign(state.note, {snippets: snippets})}))
+      this.setState(state => ({ note: Object.assign(state.note, { snippets: snippets }) }))
       this.setState(state => ({
         note: state.note
       }), () => {
@@ -408,7 +408,7 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleKeyDown (e) {
+  handleKeyDown(e) {
     switch (e.keyCode) {
       // tab key
       case 9:
@@ -450,7 +450,7 @@ class SnippetNoteDetail extends React.Component {
     }
   }
 
-  handleModeButtonClick (e, index) {
+  handleModeButtonClick(e, index) {
     const templetes = []
     CodeMirror.modeInfo.sort(function (a, b) { return a.name.localeCompare(b.name) }).forEach((mode) => {
       templetes.push({
@@ -461,7 +461,7 @@ class SnippetNoteDetail extends React.Component {
     context.popup(templetes)
   }
 
-  handleIndentTypeButtonClick (e) {
+  handleIndentTypeButtonClick(e) {
     context.popup([
       {
         label: 'tab',
@@ -474,7 +474,7 @@ class SnippetNoteDetail extends React.Component {
     ])
   }
 
-  handleIndentSizeButtonClick (e) {
+  handleIndentSizeButtonClick(e) {
     context.popup([
       {
         label: '2',
@@ -491,7 +491,7 @@ class SnippetNoteDetail extends React.Component {
     ])
   }
 
-  handleIndentSizeItemClick (e, indentSize) {
+  handleIndentSizeItemClick(e, indentSize) {
     const { config, dispatch } = this.props
     const editor = Object.assign({}, config.editor, {
       indentSize
@@ -507,7 +507,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  handleIndentTypeItemClick (e, indentType) {
+  handleIndentTypeItemClick(e, indentType) {
     const { config, dispatch } = this.props
     const editor = Object.assign({}, config.editor, {
       indentType
@@ -523,11 +523,11 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  focus () {
+  focus() {
     this.refs.description.focus()
   }
 
-  moveToTab (tab) {
+  moveToTab(tab) {
     const easeOutCubic = t => (--t) * t * t + 1
     const startScrollPosition = this.visibleTabs.scrollLeft
     const animationTiming = 300
@@ -561,7 +561,7 @@ class SnippetNoteDetail extends React.Component {
     window.requestAnimationFrame(scrollAnimation)
   }
 
-  getArrowsState () {
+  getArrowsState() {
     const allTabs = this.allTabs
     const visibleTabs = this.visibleTabs
 
@@ -569,10 +569,10 @@ class SnippetNoteDetail extends React.Component {
     const enableRightArrow = visibleTabs.scrollLeft !== allTabs.scrollWidth - visibleTabs.offsetWidth
     const enableLeftArrow = visibleTabs.scrollLeft !== 0
 
-    return {showArrows, enableRightArrow, enableLeftArrow}
+    return { showArrows, enableRightArrow, enableLeftArrow }
   }
 
-  addSnippet () {
+  addSnippet() {
     const { note } = this.state
 
     note.snippets = note.snippets.concat([{
@@ -596,7 +596,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  jumpNextTab () {
+  jumpNextTab() {
     this.setState(state => ({
       snippetIndex: (state.snippetIndex + 1) % state.note.snippets.length
     }), () => {
@@ -604,7 +604,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  jumpPrevTab () {
+  jumpPrevTab() {
     this.setState(state => ({
       snippetIndex: (state.snippetIndex - 1 + state.note.snippets.length) % state.note.snippets.length
     }), () => {
@@ -612,17 +612,17 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  focusEditor () {
+  focusEditor() {
     console.log('code-' + this.state.snippetIndex)
     this.refs['code-' + this.state.snippetIndex].focus()
   }
 
-  handleInfoButtonClick (e) {
+  handleInfoButtonClick(e) {
     const infoPanel = document.querySelector('.infoPanel')
     if (infoPanel.style) infoPanel.style.display = infoPanel.style.display === 'none' ? 'inline' : 'none'
   }
 
-  showWarning () {
+  showWarning() {
     dialog.showMessageBox(remote.getCurrentWindow(), {
       type: 'warning',
       message: i18n.__('Sorry!'),
@@ -631,7 +631,7 @@ class SnippetNoteDetail extends React.Component {
     })
   }
 
-  render () {
+  render() {
     const { data, config, location } = this.props
     const { note } = this.state
 
@@ -668,7 +668,7 @@ class SnippetNoteDetail extends React.Component {
 
       return <div styleName='tabView'
         key={index}
-        style={{zIndex: isActive ? 5 : 4}}
+        style={{ zIndex: isActive ? 5 : 4 }}
       >
         {snippet.mode === 'Markdown' || snippet.mode === 'GitHub Flavored Markdown'
           ? <MarkdownEditor styleName='tabView-content'
@@ -787,43 +787,45 @@ class SnippetNoteDetail extends React.Component {
         {location.pathname === '/trashed' ? trashTopBar : detailTopBar}
 
         <div styleName='body'>
-          <div styleName='description'>
-            <textarea
-              style={{
-                fontFamily: config.preview.fontFamily,
-                fontSize: parseInt(config.preview.fontSize, 10)
-              }}
-              ref='description'
-              placeholder={i18n.__('Description...')}
-              value={this.state.note.description}
-              onChange={(e) => this.handleChange(e)}
-            />
-          </div>
-          <div styleName='tabList'>
-            <button styleName='tabButton'
-              hidden={!this.state.showArrows}
-              disabled={!this.state.enableLeftArrow}
-              onClick={(e) => this.handleTabMoveLeftButtonClick(e)}
-            >
-              <i className='fa fa-chevron-left' />
-            </button>
-            <div styleName='list' onScroll={(e) => { this.setState(this.getArrowsState()) }} ref={(tabs) => { this.visibleTabs = tabs }}>
-              <div styleName='allTabs' ref={(tabs) => { this.allTabs = tabs }}>
-                {tabList}
-              </div>
+          <div styleName='header'>
+            <div styleName='description'>
+              <textarea
+                style={{
+                  fontFamily: config.preview.fontFamily,
+                  fontSize: parseInt(config.preview.fontSize, 10)
+                }}
+                ref='description'
+                placeholder={i18n.__('Description...')}
+                value={this.state.note.description}
+                onChange={(e) => this.handleChange(e)}
+              />
             </div>
-            <button styleName='tabButton'
-              hidden={!this.state.showArrows}
-              disabled={!this.state.enableRightArrow}
-              onClick={(e) => this.handleTabMoveRightButtonClick(e)}
-            >
-              <i className='fa fa-chevron-right' />
-            </button>
-            <button styleName='tabButton'
-              onClick={(e) => this.handleTabPlusButtonClick(e)}
-            >
-              <i className='fa fa-plus' />
-            </button>
+            <div styleName='tabList'>
+              <button styleName='tabButton'
+                hidden={!this.state.showArrows}
+                disabled={!this.state.enableLeftArrow}
+                onClick={(e) => this.handleTabMoveLeftButtonClick(e)}
+              >
+                <i className='fa fa-chevron-left' />
+              </button>
+              <div styleName='list' onScroll={(e) => { this.setState(this.getArrowsState()) }} ref={(tabs) => { this.visibleTabs = tabs }}>
+                <div styleName='allTabs' ref={(tabs) => { this.allTabs = tabs }}>
+                  {tabList}
+                </div>
+              </div>
+              <button styleName='tabButton'
+                hidden={!this.state.showArrows}
+                disabled={!this.state.enableRightArrow}
+                onClick={(e) => this.handleTabMoveRightButtonClick(e)}
+              >
+                <i className='fa fa-chevron-right' />
+              </button>
+              <button styleName='tabButton'
+                onClick={(e) => this.handleTabPlusButtonClick(e)}
+              >
+                <i className='fa fa-plus' />
+              </button>
+            </div>
           </div>
           {viewList}
         </div>

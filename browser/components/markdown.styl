@@ -50,7 +50,7 @@ popupZIndex= 500
 
 body
   font-size 16px
-  padding 15px
+  padding 15px 30px
   font-family helvetica, arial, sans-serif
   line-height 1.6
   overflow-x hidden
@@ -360,7 +360,7 @@ for name, val in admonition_types
     .admonition.{name}
         @extend $admonition
         border-left-color: val[color]
-    
+
     .admonition.{name}>.admonition-title
         @extend $admonition-title
         border-bottom-color: .1rem solid rgba(val[color], 0.2)
