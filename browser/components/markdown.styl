@@ -116,6 +116,7 @@ a
 hr
   border-top none
   border-bottom solid 1px borderColor
+  height 1px
   margin 15px 0
 h1, h2, h3, h4, h5, h6
   font-weight bold
@@ -360,7 +361,7 @@ for name, val in admonition_types
     .admonition.{name}
         @extend $admonition
         border-left-color: val[color]
-    
+
     .admonition.{name}>.admonition-title
         @extend $admonition-title
         border-bottom-color: .1rem solid rgba(val[color], 0.2)
